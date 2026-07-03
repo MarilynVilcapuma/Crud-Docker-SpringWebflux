@@ -1,0 +1,43 @@
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: marilynvilcapuma_webflux:latest      # REEMPLAZABLE: nombre local de la imagen del NUEVO proyecto
+    container_name: mar-vilt-app      # REEMPLAZABLE: identificador único del contenedor (evita choques con otros proyectos)
+    ports:
+      - 9096:9096                    # REEMPLAZABLE: puerto host:contenedor del nuevo proyecto
+    environment:
+      APP_PORT: 9096             # REEMPLAZABLE: debe coincidir con el puerto de arriba y con EXPOSE del Dockerfile
+    depends_on:
+      - mysql                        # REEMPLAZABLE: nombre del servicio de BD de abajo (o quítalo si usas H2/no BD)
+    networks:
+      - tru-network
+
+  mysql:
+    image: mysql:8.0                 # REEMPLAZABLE: motor/versión de BD del nuevo proyecto (o borra el servicio si no aplica)
+    container_name: mar-vilt-mysql     # REEMPLAZABLE: identificador único del contenedor
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234  # REEMPLAZABLE: credenciales del nuevo proyecto (usar secreto real, no hardcodear)
+      MYSQL_DATABASE: studentdb      # REEMPLAZABLE: nombre de la base de datos del nuevo proyecto
+    networks:
+      - tru-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: mar-vilt-nginx     # REEMPLAZABLE: identificador único del contenedor
+    ports:
+      - "9097:8097"                  # REEMPLAZABLE: puerto expuesto del proxy para el nuevo proyecto
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro   # REEMPLAZABLE: config de nginx si el proyecto la necesita distinta
+    depends_on:
+      - app
+    networks:
+      - tru-network
+
+networks:
+  tru-network:            # REEMPLAZABLE: nombre de red único por proyecto (evita mezclar tráfico entre proyectos)
+    driver: bridge

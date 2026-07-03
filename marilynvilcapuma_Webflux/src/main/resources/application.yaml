@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: marilynvilcapuma
+
+  r2dbc:
+    url: r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: ${SECRET_USERNAME:sa}
+    password: ${SECRET_PASSWORD:password}
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+server:
+  port: ${APP_PORT:9095}
