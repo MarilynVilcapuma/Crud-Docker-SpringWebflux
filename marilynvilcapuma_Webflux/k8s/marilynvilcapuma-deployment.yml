@@ -1,0 +1,42 @@
+# ─────────────────────────────────────────────────────────────
+# DEPLOYMENT: despliegue del microservicio con 3 réplicas (pods).
+# La imagen se descarga desde Docker Hub (subida con docker push):
+#   docker push marilynvilcapuma/marilynvilcapuma_webflux:latest
+# Aplicar después del namespace y el secret.
+# ─────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marilynvilcapuma-deployment   # 🔧 ADAPTAR: tunombre-deployment
+  namespace: marilynvilcapuma         # 🔧 ADAPTAR: mismo namespace del namespace.yml
+  labels:
+    app: marilynvilcapuma             # 🔧 ADAPTAR: tunombre
+spec:
+  replicas: 3                         # 🔧 ADAPTAR: número de pods pedido (aquí el examen pide 3)
+  selector:
+    matchLabels:
+      app: marilynvilcapuma           # 🔧 ADAPTAR: DEBE ser idéntico al label del template y al selector del service
+  template:
+    metadata:
+      labels:
+        app: marilynvilcapuma         # 🔧 ADAPTAR: mismo label que matchLabels
+    spec:
+      containers:
+        - name: marilynvilcapuma-app  # 🔧 ADAPTAR: tunombre-app
+          image: marilynvilcapuma/marilynvilcapuma_webflux:latest   # 🔧 ADAPTAR: usuario/imagen publicada en Docker Hub
+          imagePullPolicy: IfNotPresent   # descarga de Docker Hub solo si no la tiene ya en el nodo
+          ports:
+            - containerPort: 8093     # 🔧 ADAPTAR: puerto donde escucha la app DENTRO del pod (examen: 8093)
+          env:
+            - name: APP_PORT          # 🔧 ADAPTAR: variable de puerto del application.yaml (server.port: ${APP_PORT:9095})
+              value: "8093"           # 🔧 ADAPTAR: debe coincidir con containerPort y targetPort del service
+          envFrom:
+            - secretRef:
+                name: marilynvilcapuma-secret   # 🔧 ADAPTAR: nombre exacto del secret.yml
+          # Sonda de disponibilidad: el pod solo recibe tráfico cuando el endpoint responde
+          readinessProbe:
+            httpGet:
+              path: /v1/api/persona   # 🔧 ADAPTAR: endpoint GET real del proyecto (ej. /v1/api/student)
+              port: 8093              # 🔧 ADAPTAR: mismo containerPort
+            initialDelaySeconds: 10
+            periodSeconds: 5

@@ -1,0 +1,24 @@
+# ─────────────────────────────────────────────────────────────
+# SERVICE (NodePort): expone los 3 pods del deployment fuera del clúster.
+# Flujo del tráfico:  navegador → nodePort (30093) → port (80) → targetPort (8093, el pod)
+# Probar en navegador:  http://localhost:30093/v1/api/persona
+# Port-forward (puente) por un puerto flexible, ej. 8094:
+#   kubectl port-forward service/marilynvilcapuma-service 8094:80 -n marilynvilcapuma
+#   → http://localhost:8094/v1/api/persona
+# ─────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: marilynvilcapuma-service    # 🔧 ADAPTAR: tunombre-service
+  namespace: marilynvilcapuma       # 🔧 ADAPTAR: mismo namespace del namespace.yml
+  labels:
+    app: marilynvilcapuma           # 🔧 ADAPTAR: tunombre
+spec:
+  type: NodePort                    # expone el service en un puerto del nodo (rango 30000-32767)
+  selector:
+    app: marilynvilcapuma           # 🔧 ADAPTAR: DEBE coincidir con los labels de los pods del deployment
+  ports:
+    - name: http
+      port: 80                      # puerto interno del service (el examen pide 80)
+      targetPort: 8093              # 🔧 ADAPTAR: containerPort del deployment (examen: 8093)
+      nodePort: 30093               # 🔧 ADAPTAR: puerto del nodo, rango 30000-32767 (número de puerto nodeport)

@@ -1,0 +1,11 @@
+# ─────────────────────────────────────────────────────────────
+# NAMESPACE: espacio de trabajo aislado dentro del clúster.
+# Todos los demás recursos (secret, deployment, service) viven aquí.
+# Aplicar SIEMPRE primero: kubectl apply -f marilynvilcapuma-namespace.yml
+# ─────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: marilynvilcapuma        # 🔧 ADAPTAR: tunombre (mismo valor en el campo "namespace" de los otros 3 yml)
+  labels:
+    app: marilynvilcapuma       # 🔧 ADAPTAR: tunombre (etiqueta informativa)

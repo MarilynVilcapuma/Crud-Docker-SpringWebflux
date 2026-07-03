@@ -48,7 +48,7 @@ public class PersonaServiceImpl implements PersonaService {
                     return repository.save(existing);
 
                 })
-                .doOnSuccess(p -> log.info("Actualizar - Persona actualizada firstName={}, lastName={}, dni={}", p.getFirst_name(), p.getLast_name(), p.getDni()));
+                .doOnNext(p -> log.info("Actualizar - Persona actualizada firstName={}, lastName={}, dni={}", p.getFirst_name(), p.getLast_name(), p.getDni()));
     }
 
     @Override
